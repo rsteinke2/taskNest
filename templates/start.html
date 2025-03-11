@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskNest - To-Do List</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        .centered-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: #34495e;
+            font-weight: 600;
+        }
+
+        /* Form Styling */
+        .input-group {
+            margin-bottom: 2rem !important;
+        }
+
+        .form-control {
+            font-size: 1.25rem;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 2px solid #3498db;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #2980b9;
+            box-shadow: 0 0 8px rgba(41, 128, 185, 0.5);
+        }
+
+        .btn-primary {
+            font-size: 1.25rem;
+            padding: 12px 25px;
+            border-radius: 12px;
+            background-color: #3498db;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        /* Task List Styling */
+        .list-group {
+            list-style: none; /* Explicitly remove bullets */
+            padding-left: 0; /* Remove any default padding */
+        }
+
+        .list-group-item {
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border: none;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+        }
+
+        .list-group-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .task-content {
+            display: flex;
+            align-items: center;
+        }
+
+        .task-content span {
+            font-size: 1.25rem;
+            color: #2c3e50;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 15px;
+            cursor: pointer;
+        }
+
+        .btn-danger {
+            font-size: 1rem;
+            padding: 8px 20px;
+            border-radius: 8px;
+            background-color: #e74c3c;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .text-decoration-line-through {
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    {% include 'partials/header.html' %}
+
+    <!-- Flash Messages -->
+    <div class="container my-3 centered-container">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    {% for message in messages %}
+                        {{ message }}
+                    {% endfor %}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="container my-5 centered-container">
+        <h1 class="text-center mb-4">TaskNest</h1>
+
+        <!-- Task input form -->
+        <form action="/" method="POST" class="input-group mb-3">
+            <input type="text" name="task" class="form-control" placeholder="Add a new task" required>
+            <button class="btn btn-primary" type="submit">Add Task</button>
+        </form>
+
+        <!-- Unchecked tasks list -->
+        <h2 class="mb-3 text-center">To Do:</h2>
+        <ul class="list-group">
+            {% for task in unchecked_tasks %}
+            <li class="list-group-item">
+                <div class="task-item">
+                    <div class="task-content">
+                        <input type="checkbox" onclick="location.href='{{ url_for('complete_task', task_id=task.id) }}'">
+                        <span class="ms-2">{{ task.description }}</span>
+                    </div>
+                    <button class="btn btn-danger btn-sm" onclick="location.href='{{ url_for('remove_task', task_id=task.id) }}'">Remove</button>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+
+        <!-- Completed tasks list -->
+        <h2 class="mt-5 mb-3 text-center">Completed:</h2>
+        <ul class="list-group">
+            {% for task in completed_tasks %}
+            <li class="list-group-item">
+                <div class="task-item">
+                    <div class="task-content">
+                        <input type="checkbox" onclick="location.href='{{ url_for('complete_task', task_id=task.id) }}'" checked>
+                        <span class="text-decoration-line-through ms-2">{{ task.description }}</span>
+                    </div>
+                    <button class="btn btn-danger btn-sm" onclick="location.href='{{ url_for('remove_task', task_id=task.id) }}'">Remove</button>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

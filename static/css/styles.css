@@ -1,0 +1,17 @@
+body {
+    background-color: #4381bf;
+}
+
+h1 {
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    color:  #f8f9fa;
+}
+
+.form-control, .btn {
+    border-radius: 0;
+}
+
+.list-group-item {
+    font-family: Arial, sans-serif;
+}
